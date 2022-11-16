@@ -183,6 +183,7 @@ export default {
       images: [],
       current: 0,
       total: 0,
+      user: []
     };
   },
   filters: {
@@ -223,7 +224,7 @@ export default {
       // this.$store.commit("addCart", this.products);
       axios
         .post(this.$store.state.base_url + "cart", {
-          customer_id: 1,
+          customer_id: this.user.id,
           product_id: this.products.id,
           quantity: 1,
           description: this.products.description,
@@ -240,7 +241,7 @@ export default {
     },
     getTotal() {
       axios
-        .get(this.$store.state.base_url + "cart/1")
+        .get(this.$store.state.base_url + "cart/" + this.user.id)
         .then((response) => {
           this.total = response.data.length;
         })
@@ -248,10 +249,21 @@ export default {
           console.log(error);
         });
     },
+    me() {
+      axios.post(this.$store.state.base_url + "me", {
+       token: sessionStorage.getItem("token"),
+      }).then((response) => {
+        console.log(response);
+        this.user = response.data;
+        this.getProducts();
+        this.getTotal();
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
   },
   created() {
-    this.getProducts();
-    this.getTotal();
+    this.me();
   },
 };
 </script>

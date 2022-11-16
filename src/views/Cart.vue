@@ -54,12 +54,23 @@
                     </div>
                     <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
                       <button
-                        class="btn btn-link px-2"
+                        class="btn btn-danger btn-sm"
                         onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
+                        @click="updateMinus(products.id, products.quantity - 1)"
                       >
-                        <i class="fas fa-minus"></i>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          fill="currentColor"
+                          class="bi bi-dash"
+                          viewBox="0 0 16 16"
+                        >
+                          <path
+                            d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"
+                          />
+                        </svg>
                       </button>
-
                       <input
                         id="form1"
                         min="0"
@@ -68,20 +79,37 @@
                         type="number"
                         class="form-control form-control-sm"
                       />
-
                       <button
-                        class="btn btn-link px-2"
+                        class="btn btn-success btn-sm"
                         onclick="this.parentNode.querySelector('input[type=number]').stepUp()"
+                        @click="updatePlus(products.id, products.quantity + 1)"
                       >
-                        <i class="fas fa-plus"></i>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          fill="currentColor"
+                          class="bi bi-plus-lg"
+                          viewBox="0 0 16 16"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"
+                          />
+                        </svg>
                       </button>
                     </div>
                     <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
-                      <h5 class="mb-0">{{ totalProduct(products.price,products.quantity) | currency }}</h5>
+                      <h5 class="mb-0">
+                        {{
+                          totalProduct(products.price, products.quantity)
+                            | currency
+                        }}
+                      </h5>
                     </div>
                     <div class="col-md-1 col-lg-1 col-xl-1 text-end">
                       <button
-                        class="btn btn-danger"
+                        class="btn btn-danger btn-sm"
                         @click="removeProduct(products.id)"
                       >
                         x
@@ -110,7 +138,9 @@
               </div>
 
               <div class="card">
-                <h1 class="total"><b> Total: {{ Total | currency }}</b></h1>
+                <h1 class="total">
+                  <b> Total: {{ Total | currency }}</b>
+                </h1>
                 <div class="card-body">
                   <button
                     type="button"
@@ -142,6 +172,8 @@ export default {
       cart: [],
       Total: 0,
       TotalProduct: 0,
+      quantity: "",
+      user: []
     };
   },
   filters: {
@@ -162,8 +194,9 @@ export default {
   methods: {
     getTotal() {
       axios
-        .get(this.$store.state.base_url + "cart/1")
+        .get(this.$store.state.base_url + "cart/"+this.user.id)
         .then((response) => {
+          console.log(response.data);
           this.total = response.data.length;
           this.cart = response.data;
           this.cart.forEach((item) => {
@@ -185,7 +218,6 @@ export default {
           console.log(error);
         });
     },
-
     removeProduct(id) {
       axios
         .delete(this.$store.state.base_url + "cart/" + id)
@@ -202,10 +234,47 @@ export default {
         });
       this.newTotal();
     },
+    updatePlus(id, quantity) {
+      axios
+        .put(this.$store.state.base_url + "cart/" + id, {
+          quantity: quantity,
+        })
+        .then((response) => {
+          console.log(response);
+          this.Total += response.data.price;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      this.newTotal();
+    },
+    updateMinus(id, quantity) {
+      axios
+        .put(this.$store.state.base_url + "cart/" + id, {
+          quantity: quantity,
+        })
+        .then((response) => {
+          this.Total -= response.data.price;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      this.newTotal();
+    },
+    me() {
+      axios.post(this.$store.state.base_url + "me", {
+       token: sessionStorage.getItem("token"),
+      }).then((response) => {
+        this.user = response.data;
+        this.getTotal();
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
   },
-  watch: {},
+  
   created() {
-    this.getTotal();
+    this.me();
   },
 };
 </script>
@@ -222,6 +291,11 @@ export default {
   text-align: center;
   font-size: 30px;
   font-family: "Roboto", sans-serif;
-  margin-top : 20px;
+  margin-top: 20px;
+}
+@media (max-width: 768px) {
+  .description {
+    max-width: 100px;
+  }
 }
 </style>

@@ -13,9 +13,6 @@ export default {
     };
   },
   methods: {
-    buscarProdutos() {
-      // this.$router.push({ query: { q: this.busca } });
-    }
   }
 };
 </script>

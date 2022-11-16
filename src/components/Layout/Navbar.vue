@@ -8,7 +8,7 @@
       <!-- <b-avatar v-if="this.$store.state.login == true" id="dropdown-1" text="Dropdown Button" class="m-md-2"> -->
       <!-- dropdown -->
       <div
-        v-if="this.$store.state.login == true"
+        v-if="this.login == true"
         class="d-flex flex-direction-1 align-items-center"
       >
         <ul class="navbar-nav ml-auto cart btn" @click="cart()">
@@ -41,20 +41,25 @@
           </b-avatar>
 
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            <li>
+              <a class="dropdown-item" href="#">{{ name }}</a>
+            </li>
+            <!-- <li><a class="dropdown-item" href="#">Another action</a></li> -->
+            <li><a class="dropdown-item" @click="logout()">Sair</a></li>
           </ul>
         </div>
       </div>
       <!--  end -->
 
-      <router-link v-else class="btn" to="/login">Vender / Login</router-link>
+      <router-link v-else class="btn" to="/login"
+        ><span class="login"><b>Cadastre-se / Login</b></span></router-link
+      >
     </nav>
   </header>
 </template>
   
   <script>
+import axios from "axios";
 // import axios from 'axios';
 export default {
   name: "TheHeader",
@@ -62,34 +67,47 @@ export default {
   data() {
     return {
       // total: 0,
+      login: false,
+      name: "",
     };
   },
-  
+
   props: {
     total: Number,
   },
   methods: {
-    getTotal() {
-     
-    },
     cart() {
       this.$router.push("/cart");
-    }
-    
+    },
+    me() {
+      axios
+        .post(this.$store.state.base_url + "me", {
+          token: sessionStorage.getItem("token"),
+        })
+        .then((response) => {
+          console.log(response);
+          this.login = true;
+          this.name = response.data.name;
+          // this.$router.push("/");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    logout() {
+      sessionStorage.removeItem("token");
+      this.login = false;
+      this.$router.push("/");
+    },
   },
   watch: {
     $route() {
       this.getTotal();
     },
-    total() {
-    
-    },
-
   },
   mounted() {
-    // this.getTotal();
-    
-  }
+    this.me();
+  },
 };
 </script>
   
@@ -121,6 +139,14 @@ nav {
   background: red;
   color: #fff;
   font-size: 0.7rem;
+}
+.login {
+  padding: 10px 20px;
+  /* background: #f00; */
+  /* color: #fff; */
+  font-family: Poppins, sans-serif !important;
+  border-radius: 4px;
+  text-decoration: none;
 }
 </style>
   

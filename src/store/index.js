@@ -7,7 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     base_url: 'http://localhost:8001/api/',
-    login: true,
+    login: false,
     Total: 0,
   },
   getters: {
