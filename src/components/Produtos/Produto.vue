@@ -2,7 +2,8 @@
   <div>
     <!-- <h1>{{products}}</h1> -->
     <Navbar :total="total" />
-    <section class="content">
+    <Loading v-if="retur" />
+    <section v-else class="content">
       <div class="card card-solid">
         <div class="card-body">
           <div class="row">
@@ -70,7 +71,7 @@
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
                   <span block v-b-toggle.accordion-1 variant="info"
-                    ><h4 class="description">
+                    ><h4>
                       <span class="svgdes"
                         ><svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -108,7 +109,7 @@
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
                   <span block v-b-toggle.accordion-2
-                    ><h4 class="description">
+                    ><h4>
                       <span class="svgdes"
                         ><svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -164,18 +165,23 @@
         </div>
       </div>
     </section>
+    <Footer  v-if="!retur" />
   </div>
 </template>
 
 <script>
 // import { api } from "@/services/index.js";
 import Navbar from "@/components/Layout/Navbar.vue";
+import Loading from "@/components/Layout/PaginaCarregando.vue";
+import Footer from "@/components/Layout/Footer.vue";
 
 import axios from "axios";
 export default {
   name: "ProductComponent",
   components: {
     Navbar,
+    Loading,
+    Footer,
   },
   data() {
     return {
@@ -183,7 +189,8 @@ export default {
       images: [],
       current: 0,
       total: 0,
-      user: []
+      user: [],
+      retur: true
     };
   },
   filters: {
@@ -200,7 +207,7 @@ export default {
         .get(`${this.$store.state.base_url + "image/" + this.$route.params.id}`)
         .then((response) => {
           this.images = response.data;
-          // console.log(this.images[0]);
+          this.retur = false
         })
         .catch((error) => {
           console.log(error);
@@ -241,8 +248,12 @@ export default {
     },
     getTotal() {
       axios
-        .get(this.$store.state.base_url + "cart/" + this.user.id)
-        .then((response) => {
+        .post(this.$store.state.base_url + "carts",
+          {
+          customer_id: this.user.id,
+        }
+        ).then((response) => {
+          console.log(response.data);
           this.total = response.data.length;
         })
         .catch((error) => {
@@ -259,6 +270,8 @@ export default {
         this.getTotal();
       }).catch((error) => {
         console.log(error);
+        this.getProducts();
+        this.getTotal();
       });
     }
   },
@@ -273,28 +286,26 @@ export default {
   font-size: 1.2rem;
   color: #000;
   margin-top: 14px;
+  margin-left: 10px;
 
 }
 .svgdes {
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
+
 }
-.description {
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-}
+
 .product-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 .description {
-  font-size: 1.25rem;
-  line-height: 1.875rem;
-  font-weight: 700;
-  text-transform: uppercase;
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+width: 100%;
+
+
 }
 .content {
   padding: 20px 40px 20px 40px;

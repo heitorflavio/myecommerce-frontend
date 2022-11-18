@@ -11,6 +11,7 @@ import 'jquery/dist/jquery.min.js'
 import 'popper.js/dist/popper.min.js'
 import 'admin-lte/dist/css/adminlte.min.css'
 import 'admin-lte/dist/js/adminlte.min.js'
+import 'popper.js/dist/popper.min.js'
 Vue.config.productionTip = false
 
 

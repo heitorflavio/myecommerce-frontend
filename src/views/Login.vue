@@ -7,31 +7,47 @@
         </router-link>
       </div>
     </nav>
+    <div></div>
     <div class="content">
-      <div class="card shadow-none ">
+      <div class="card shadow-none">
         <!-- Pills navs -->
-
+        <div v-if="error" class="alert alert-danger" role="alert">
+          Senha ou email incorretos!
+        </div>
         <!-- Pills navs -->
 
         <!-- Pills content -->
         <form class="form">
           <!-- Email input -->
           <div class="form-outline mb-12">
-            <input type="email" id="form2Example1" class="form-control" v-model="email" />
+            <input
+              type="email"
+              id="form2Example1"
+              class="form-control"
+              v-model="email"
+            />
             <label class="form-label" for="form2Example1">Email address</label>
           </div>
 
           <!-- Password input -->
           <div class="form-outline mb-12">
-            <input type="password" id="form2Example2" class="form-control" v-model="password"/>
+            <input
+              type="password"
+              id="form2Example2"
+              class="form-control"
+              v-model="password"
+            />
             <label class="form-label" for="form2Example2">Password</label>
           </div>
 
           <!-- 2 column grid layout for inline styling -->
-         
 
           <!-- Submit button -->
-          <button type="button" class="btn btn-primary btn-block mb-4" @click="login()">
+          <button
+            type="submit"
+            class="btn btn-primary btn-block mb-4"
+            @click.prevent="login()"
+          >
             Sign in
           </button>
 
@@ -63,47 +79,52 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 // import Navbar from "@/components/Layout/Navbar.vue";
 export default {
   name: "LoginUser",
   components: {
     // Navbar,
   },
-    data() {
-        return {
-            email: '',
-            password: '',
-        }
+  data() {
+    return {
+      email: "",
+      password: "",
+      error: false,
+    };
+  },
+  methods: {
+    login() {
+      axios
+        .post(this.$store.state.base_url + "login", {
+          email: this.email,
+          password: this.password,
+        })
+        .then((response) => {
+          console.log(response);
+          this.$store.commit("setLogin", true);
+          sessionStorage.setItem("token", response.data.token);
+          console.log(response.data);
+          this.$router.push("/");
+        })
+        .catch((error) => {
+          console.log(error);
+          this.error = true;
+        });
     },
-    methods: {
-      login() {
-          axios.post(this.$store.state.base_url + "login", {
-            email: this.email,
-            password: this.password,
-          }).then((response) => {
-            console.log(response);
-            this.$store.commit("setLogin", true);
-            sessionStorage.setItem("token", response.data.token);
-            console.log(response.data)
-            // this.$store.commit("setUser", response.data.user);
-            this.$router.push("/");
-          }).catch((error) => {
-            console.log(error);
-          });
-
-        },
-        
-    },
+  },
+  created() {
+    this.getdado();
+  },
 };
 </script>
 
 <style scoped>
 .form {
-    width: 100%;
-    max-width: 500px;
-    padding: 15px;
-    margin: auto;
+  width: 100%;
+  max-width: 500px;
+  padding: 15px;
+  margin: auto;
 }
 .content {
   display: flex;

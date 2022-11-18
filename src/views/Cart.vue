@@ -1,13 +1,16 @@
 <template>
   <div>
     <Navbar :total="total" />
-    <div>
-      <section class="h-100" style="background-color: #eee">
+    <Loading v-if="retur" />
+    <div v-else >
+      <section>
         <div class="container h-100 py-5">
           <div
-            class="row d-flex justify-content-center align-items-center h-100"
+            class="row d-flex justify-content-center align-items-center  card "
+            id="cart"
+            
           >
-            <div class="col-10">
+            <div >
               <div
                 class="d-flex justify-content-between align-items-center mb-4"
               >
@@ -54,7 +57,7 @@
                     </div>
                     <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
                       <button
-                        class="btn btn-danger btn-sm"
+                        class="btn btn-sm"
                         onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
                         @click="updateMinus(products.id, products.quantity - 1)"
                       >
@@ -80,7 +83,7 @@
                         class="form-control form-control-sm"
                       />
                       <button
-                        class="btn btn-success btn-sm"
+                        class="btn  btn-sm"
                         onclick="this.parentNode.querySelector('input[type=number]').stepUp()"
                         @click="updatePlus(products.id, products.quantity + 1)"
                       >
@@ -102,14 +105,14 @@
                     <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
                       <h5 class="mb-0">
                         {{
-                          totalProduct(products.price, products.quantity)
+                          products.price * products.quantity
                             | currency
                         }}
                       </h5>
                     </div>
-                    <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                    <div class="col-md-1 col-lg-1 col-xl-1 text-end remove">
                       <button
-                        class="btn btn-danger btn-sm"
+                        class="btn btn-danger btn-sm btnremove"
                         @click="removeProduct(products.id)"
                       >
                         x
@@ -118,7 +121,7 @@
                   </div>
                 </div>
               </div>
-              <div class="card mb-4">
+              <!-- <div class="card mb-4">
                 <div class="card-body p-4 d-flex flex-row">
                   <div class="form-outline flex-fill">
                     <input
@@ -135,7 +138,7 @@
                     Apply
                   </button>
                 </div>
-              </div>
+              </div> -->
 
               <div class="card">
                 <h1 class="total">
@@ -146,7 +149,7 @@
                     type="button"
                     class="btn btn-warning btn-block btn-lg"
                   >
-                    Proceed to Pay
+                    Finalizar
                   </button>
                 </div>
               </div>
@@ -155,16 +158,21 @@
         </div>
       </section>
     </div>
+    <Footer v-if="!retur" />
   </div>
 </template>
 
 <script>
 import Navbar from "@/components/Layout/Navbar.vue";
+import Loading from "@/components/Layout/PaginaCarregando.vue";
+import Footer from "@/components/Layout/Footer.vue";
 import axios from "axios";
 export default {
   name: "CartView",
   components: {
     Navbar,
+    Loading,
+    Footer,
   },
   data() {
     return {
@@ -173,7 +181,8 @@ export default {
       Total: 0,
       TotalProduct: 0,
       quantity: "",
-      user: []
+      user: [],
+      retur: true,
     };
   },
   filters: {
@@ -185,17 +194,23 @@ export default {
     },
   },
   computed: {
-    totalProduct() {
-      return (price, quantity) => {
-        return price * quantity;
-      };
+    totalProduct(total,quantity) {
+      return total * quantity;
     },
+    
+    
+    
+      
+
   },
   methods: {
     getTotal() {
       axios
-        .get(this.$store.state.base_url + "cart/"+this.user.id)
-        .then((response) => {
+        .post(this.$store.state.base_url + "carts",
+          {
+          customer_id: this.user.id,
+        }
+        ).then((response) => {
           console.log(response.data);
           this.total = response.data.length;
           this.cart = response.data;
@@ -209,16 +224,23 @@ export default {
     },
     newTotal() {
       axios
-        .get(this.$store.state.base_url + "cart/1")
+        .post(this.$store.state.base_url + "carts", {
+          customer_id: this.user.id,
+        
+        })
         .then((response) => {
           this.total = response.data.length;
           this.cart = response.data;
+          this.retur = false;
+          console.log(response.data);
         })
         .catch((error) => {
           console.log(error);
+          // this.retur = false;
         });
     },
     removeProduct(id) {
+      this.retur = true;
       axios
         .delete(this.$store.state.base_url + "cart/" + id)
         .then((response) => {
@@ -227,52 +249,74 @@ export default {
               this.Total -= item.price * item.quantity;
             }
           });
+          this.newTotal();
           console.log(response);
         })
         .catch((error) => {
           console.log(error);
         });
-      this.newTotal();
+        // this.me();
     },
     updatePlus(id, quantity) {
+      this.retur = true;
+      axios
+        .put(this.$store.state.base_url + "cart/" + id, {
+          quantity: quantity,
+        })
+        .then((response) => {
+            console.log(response);
+          this.cart.find((item) => {
+            if (item.id === id) {
+              this.Total += item.price;
+            }
+          });
+          // this.Total += response.data.price;
+          this.newTotal();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      // this.me();
+    },
+    updateMinus(id, quantity) {
+      this.retur = true;
       axios
         .put(this.$store.state.base_url + "cart/" + id, {
           quantity: quantity,
         })
         .then((response) => {
           console.log(response);
-          this.Total += response.data.price;
+          this.cart.find((item) => {
+            if (item.id === id) {
+              this.Total -= item.price;
+            }
+          });
+          // this.Total -= response.data.price;
+          this.newTotal();
         })
         .catch((error) => {
           console.log(error);
         });
-      this.newTotal();
-    },
-    updateMinus(id, quantity) {
-      axios
-        .put(this.$store.state.base_url + "cart/" + id, {
-          quantity: quantity,
-        })
-        .then((response) => {
-          this.Total -= response.data.price;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      this.newTotal();
+        // this.me();
     },
     me() {
-      axios.post(this.$store.state.base_url + "me", {
-       token: sessionStorage.getItem("token"),
-      }).then((response) => {
-        this.user = response.data;
-        this.getTotal();
-      }).catch((error) => {
-        console.log(error);
-      });
-    }
+      axios
+        .post(this.$store.state.base_url + "me", {
+          token: sessionStorage.getItem("token"),
+        })
+        .then((response) => {
+          this.user = response.data;
+          this.getTotal();
+          setTimeout(() => {
+            this.retur = false;
+          }, 1000);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
   },
-  
+
   created() {
     this.me();
   },
@@ -287,15 +331,39 @@ export default {
   text-overflow: ellipsis;
   font-family: "Roboto", sans-serif;
 }
+#cart {
+  padding: 50px;
+}
 .total {
   text-align: center;
   font-size: 30px;
   font-family: "Roboto", sans-serif;
   margin-top: 20px;
 }
+
+.btnremove {
+ width: 30px;
+}
 @media (max-width: 768px) {
   .description {
     max-width: 100px;
   }
+  .mb-0 {
+    margin-bottom: 0px;
+    display: flex;
+    margin-top: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+  .remove {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #cart {
+    padding: 0px;
+  }
+ 
 }
 </style>

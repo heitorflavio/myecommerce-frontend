@@ -1,8 +1,8 @@
 <template>
   <div class="home">
     <Navbar :total="total" />
-    <Buscar />
     <List />
+    <!-- <Footer /> -->
   </div>
 </template>
 
@@ -10,7 +10,8 @@
 // @ is an alias to /src
 import List from "@/components/Produtos/List.vue";
 import Navbar from "@/components/Layout/Navbar.vue";
-import Buscar from "@/components/Produtos/ProdutosBuscar.vue";
+// import Footer from "@/components/Layout/Footer.vue";
+// import Buscar from "@/components/Produtos/ProdutosBuscar.vue";
 import axios from "axios";
 
 export default {
@@ -18,7 +19,8 @@ export default {
   components: {
     List,
     Navbar,
-    Buscar,
+    // Footer,
+    // Buscar,
   },
   data() {
     return {
@@ -29,11 +31,13 @@ export default {
   methods: {
     getTotal() {
       axios
-        .get(this.$store.state.base_url + "cart/" + this.user.id)
-        .then((response) => {
-          // return response.data.length;
+        .post(this.$store.state.base_url + "carts",
+          {
+          customer_id: this.user.id,
+        }
+        ).then((response) => {
+          console.log(response.data);
           this.total = response.data.length;
-          // this.$store.commit("setCartTotal", response.data.length);
         })
         .catch((error) => {
           console.log(error);
