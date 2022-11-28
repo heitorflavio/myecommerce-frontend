@@ -81,6 +81,7 @@
                         v-model="products.quantity"
                         type="number"
                         class="form-control form-control-sm"
+                        disabled
                       />
                       <button
                         class="btn  btn-sm"
@@ -197,11 +198,6 @@ export default {
     totalProduct(total,quantity) {
       return total * quantity;
     },
-    
-    
-    
-      
-
   },
   methods: {
     getTotal() {

@@ -47,7 +47,7 @@
                   ><b>{{ name }}</b></a
                 >
               </li>
-              <li><a class="dropdown-item" >Wishlist</a></li>
+              <li><a class="dropdown-item" href="/wishlist" >Wishlist</a></li>
               <li><a class="dropdown-item" @click="logout()">Sair</a></li>
             </ul>
           </div>
