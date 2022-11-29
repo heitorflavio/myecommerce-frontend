@@ -293,6 +293,7 @@ export default {
           customer_id: this.user.id,
           product_id: this.products.id,
           quantity: 1,
+          sku: this.products.sku,
           description: this.products.description,
           price: this.products.price,
           image: this.images[0].path

@@ -3,8 +3,9 @@
     <Navbar :total="Total" />
     <Loading v-if="retur" />
     <div v-else>
-        <form>
+        <form @submit.prevent="Order()">
       <div class="d-flex main">
+        <div class="alert alert-danger" v-if="alert">{{alert}}</div>
         <div class="card">
           <div class="card-body">
             <div class="row">
@@ -67,7 +68,7 @@
 
             <ul id="frete">
                 <li><input type="radio" name="frete"  value="1" v-model="frete" required><span class="ml-2">Retirar <span class="">Grátis</span></span></li>
-                <li><input type="radio" name="frete" value="2" v-model="frete" required><span class="ml-2">Pagar na Entrega <span class="">Grátis</span></span></li>
+                <!-- <li><input type="radio" name="frete" value="2" v-model="frete" required><span class="ml-2">Pagar na Entrega <span class="">Grátis</span></span></li> -->
                 <li><input type="radio" name="frete" value="3" v-model="frete" required><span class="ml-2">Entrega pela Loja - <span class=""><b>R$ 20,00</b></span></span></li>
             </ul>
            
@@ -156,9 +157,9 @@
                     <span><b>**** PAGAR NA ENTREGA ****</b> </span>
                 </div>
                 <div class="col d-flex align-items-center justify-content-center mb-2 mt-2">   
-               <input type="radio" name="payment" value="1" required><span class="ml-2 mr-2"><b>PIX</b></span>
-               <input type="radio" name="payment" value="2" required><span class="ml-2 mr-2"><b>DINHEIRO</b></span>
-               <input type="radio" name="payment" value="3" required><span class="ml-2 mr-2"><b>CARTÃO</b></span>
+               <input type="radio" name="payment" value="1" required v-model="PayEntrega"><span class="ml-2 mr-2"><b>PIX</b></span>
+               <input type="radio" name="payment" value="2" required  v-model="PayEntrega"><span class="ml-2 mr-2"><b>DINHEIRO</b></span>
+               <input type="radio" name="payment" value="3" required  v-model="PayEntrega"><span class="ml-2 mr-2"><b>CARTÃO</b></span>
             </div>
             </div>
             <div class="d-flex align-items-center justify-content-center mt-2">
@@ -167,7 +168,7 @@
               </h4>
             </div>
             <div class="d-flex align-items-center justify-content-center">
-              <button type="submit" class="btn fzd mt-1">FINALIZAR COMPRA</button>
+              <button  type="submit" class="btn fzd mt-1">FINALIZAR COMPRA</button>
             </div>
           </div>
         </div>
@@ -270,6 +271,10 @@ export default {
       frete: Number | 0,
         isTotal: 0,
       ValorFrete: 0,
+      method: "",
+      Tfrete: "",
+      PayEntrega: "",
+      alert: "",
     };
   },
   filters: {
@@ -337,7 +342,65 @@ export default {
             console.log(error);
             this.$router.push("/login");
         });
-    },
+      },
+    Order() {
+      this.retur = true;
+      if (this.frete == 3) {
+        this.Tfrete = "Entrega Pela Loja";
+      }
+      if (this.frete == 1) {
+        this.Tfrete = "Retirar na Loja";
+      }
+      if(this.pay1 == true){
+        this.method = "Cartão de Crédito"
+      }
+      if(this.pay2 == true){
+        this.method = "Boleto"
+      }
+      if(this.pay3 == true){
+        this.method = "Pagar na Entrega"
+      }
+      if(this.PayEntrega == 1){
+        this.PayEntrega = "PIX"
+      }
+      if(this.PayEntrega == 2){
+        this.PayEntrega = "Dinheiro"
+      }
+      if(this.PayEntrega == 3){
+        this.PayEntrega = "Cartão"
+      }
+
+      axios.post(this.$store.state.base_url + "order",
+        {
+          customer_id: this.user.id,
+          customer_name: this.user.name,
+          customer_email: this.user.email,
+          customer_phone: this.user.phone,
+          customer_address: this.user.address,
+          customer_city: this.user.city,
+          customer_state: this.user.state,
+          customer_zip: this.user.zip,
+          customer_country: this.user.country,
+          customer_notes: 'null',
+          total: this.isTotal,
+          valor_frete: this.ValorFrete,
+          frete: this.Tfrete,
+          frete_status: "Aguardando",
+          payment_method: this.method,
+          payment_status: "Aguardando",
+        
+
+        
+      }
+        ).then((response) => {
+          console.log(response.data);   
+          this.$router.push("/finish");
+        })
+        .catch((error) => {
+          console.log(error);
+          this.alert = "Erro ao Finalizar Compra";
+        });
+      }
     },
     watch: {
         frete(va) {

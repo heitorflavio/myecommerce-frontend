@@ -52,6 +52,14 @@ const routes = [
       requiresAuth: true
     }
   },
+  {
+    path: '/finish',
+    name: 'Finish',
+    component: () => import('../views/Finish.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
 
 ]
 
