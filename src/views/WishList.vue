@@ -7,21 +7,14 @@
         <div class="container h-100 py-5">
           <div
             class="row d-flex justify-content-center align-items-center card"
-            id="cart"
+            id="wish"
+            v-if="wishList.length > 0"
           >
             <div>
               <div
                 class="d-flex justify-content-between align-items-center mb-4"
               >
                 <h3 class="fw-normal mb-0 text-black">WishList</h3>
-                <!-- <div>
-                    <p class="mb-0">
-                      <span class="text-muted">Sort by:</span>
-                      <a href="#!" class="text-body"
-                        >price <i class="fas fa-angle-down mt-1"></i
-                      ></a>
-                    </p>
-                  </div> -->
               </div>
 
               <div
@@ -67,6 +60,10 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div v-else class="NoProducts">
+            <h3 class="fw-normal mb-0 text-black">WishList</h3>
+            <p class="text-muted">No products in the wishlist</p>
           </div>
         </div>
       </section>
@@ -119,7 +116,7 @@ export default {
         });
     },
     removeProduct(id) {
-        this.retur = true;
+      this.retur = true;
       console.log(id);
       axios
         .delete(this.$store.state.base_url + "wish/" + id)
@@ -156,7 +153,8 @@ export default {
           this.getWishList();
         })
         .catch((error) => {
-          console.log(error);
+            console.log(error);
+            this.$router.push("/login");
         });
     },
   },
@@ -166,5 +164,18 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.NoProducts {
+  text-align: center;
+  margin: 20% 0 20% 0;
+}
+
+#wish {
+    width: 100%;
+    height: 100%;
+    margin: 0 0 25% 0;
+    padding: 0;
+    background-color: #f5f5f5;
+
+}
 </style>

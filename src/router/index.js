@@ -6,6 +6,7 @@ import Cart from '../views/Cart.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Wishlist from '../views/WishList.vue'
+import ProductOrder from '../views/ProductOrder.vue'
 
 Vue.use(VueRouter)
 
@@ -39,6 +40,14 @@ const routes = [
     path: '/wishlist',
     name: 'wishlist',
     component: Wishlist,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/product-order',
+    name: 'ProductOrder',
+    component: ProductOrder,
     meta: {
       requiresAuth: true
     }

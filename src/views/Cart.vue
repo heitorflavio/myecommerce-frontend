@@ -8,6 +8,7 @@
           <div
             class="row d-flex justify-content-center align-items-center  card "
             id="cart"
+            v-if="cart.length > 0"
             
           >
             <div >
@@ -149,12 +150,18 @@
                   <button
                     type="button"
                     class="btn btn-warning btn-block btn-lg"
+                    @click="Order()"
                   >
                     Finalizar
                   </button>
                 </div>
               </div>
             </div>
+          </div>
+          <div v-else class="NoProducts">
+            <h3 class="fw-normal mb-0 text-black">Cart</h3>
+            <p class="text-muted">No products in the Cart</p>
+
           </div>
         </div>
       </section>
@@ -311,6 +318,9 @@ export default {
           console.log(error);
         });
     },
+    Order() {
+      this.$router.push("/product-order");
+    }
   },
 
   created() {
@@ -361,5 +371,9 @@ export default {
     padding: 0px;
   }
  
+}
+.NoProducts {
+    text-align: center;
+    margin: 20% 0 20% 0;
 }
 </style>
